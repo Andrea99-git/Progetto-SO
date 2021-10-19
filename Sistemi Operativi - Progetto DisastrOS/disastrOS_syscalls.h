@@ -24,3 +24,13 @@ void internal_openResource();
 void internal_closeResource();
 
 void internal_destroyResource();
+
+void internal_mq_open();
+
+void internal_mq_close();
+
+void internal_mq_unlink();
+
+void internal_mq_send();
+
+void internal_mq_receive();

@@ -47,6 +47,7 @@ PCB* PCB_alloc() {
   pcb->return_value=0;
   pcb->status=Invalid;
   pcb->last_fd=0;
+  pcb->last_mqd=0;
   pcb->signals=0;
   pcb->signals_mask=0xFFFFFFFF;
   pcb->status=Invalid;

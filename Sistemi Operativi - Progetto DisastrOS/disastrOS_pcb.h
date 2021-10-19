@@ -29,7 +29,10 @@ typedef struct PCB{
   // descriptors (for all resources)
   int last_fd;
   ListHead descriptors;
-  
+
+  //descrittori
+  mqd_t last_mqd;
+  ListHead descrittori;
   
   //we are really rude :) the stack is INSIDE the pcb
   //forgive me for the bestiality

@@ -6,11 +6,16 @@
 #include <stdio.h>
 #include <signal.h>
 #include <unistd.h>
+#include <mqueue.h>
+#include <sys/stat.h>
 #include "disastrOS.h"
 #include "disastrOS_syscalls.h"
 #include "disastrOS_timer.h"
 #include "disastrOS_resource.h"
 #include "disastrOS_descriptor.h"
+#include "disastrOS_messagequeue.h"
+#include "disastrOS_descrittore.h"
+
 
 FILE* log_file=NULL;
 PCB* init_pcb;
@@ -23,6 +28,8 @@ ListHead timer_list;
 
 // a resource can be a device, a file or an ipc thing
 ListHead resources_list;
+//messagequeues
+ListHead messagequeues_list;
 
 /*Qui c'e' il vettore delle syscall. E' un array di puntatori al tipo SyscallFunctionType (funzione che non prende argomenti e non da' argomenti. Di norma una syscall prende difatti gli argomenti dalla CPU. Per sapere quindi il numero di argomenti presi usero' l'array di interi syscall_numarg (a syscall[0] corrisponde un numero di argomenti syscall_numarg[0]) */
 SyscallFunctionType syscall_vector[DSOS_MAX_SYSCALLS];
@@ -146,6 +153,8 @@ void disastrOS_start(void (*f)(void*), void* f_args, char* logfile){
   Timer_init();
   Resource_init();
   Descriptor_init();
+  MessageQueue_init();
+  Descrittore_init();
   init_pcb=0;
 
   // populate the vector of syscalls and number of arguments for each syscall
@@ -181,6 +190,21 @@ void disastrOS_start(void (*f)(void*), void* f_args, char* logfile){
   syscall_vector[DSOS_CALL_DESTROY_RESOURCE]     = internal_destroyResource;
   syscall_numarg[DSOS_CALL_DESTROY_RESOURCE]     = 1;
 
+  syscall_vector[DSOS_CALL_MQ_OPEN]     = internal_mq_open;
+  syscall_numarg[DSOS_CALL_MQ_OPEN]     = 4;
+
+  syscall_vector[DSOS_CALL_MQ_CLOSE]     = internal_mq_close;
+  syscall_numarg[DSOS_CALL_MQ_CLOSE]     = 1;
+
+  syscall_vector[DSOS_CALL_MQ_UNLINK]     = internal_mq_unlink;
+  syscall_numarg[DSOS_CALL_MQ_UNLINK]     = 1;
+
+  syscall_vector[DSOS_CALL_MQ_SEND]     = internal_mq_send;
+  syscall_numarg[DSOS_CALL_MQ_SEND]     = 4;
+
+  syscall_vector[DSOS_CALL_MQ_RECEIVE]     = internal_mq_receive;
+  syscall_numarg[DSOS_CALL_MQ_RECEIVE]     = 4;
+
   syscall_vector[DSOS_CALL_SHUTDOWN]      = internal_shutdown;
   syscall_numarg[DSOS_CALL_SHUTDOWN]      = 0;
 
@@ -190,6 +214,7 @@ void disastrOS_start(void (*f)(void*), void* f_args, char* logfile){
   List_init(&waiting_list);
   List_init(&zombie_list);
   List_init(&resources_list);
+  List_init(&messagequeues_list);
   List_init(&timer_list);
 
 
@@ -293,6 +318,25 @@ int disastrOS_destroyResource(int resource_id) {
   return disastrOS_syscall(DSOS_CALL_DESTROY_RESOURCE, resource_id);
 }
 
+mqd_t disastrOS_mq_open(const char* mq_name, int mq_flag, mode_t mq_mode, struct mq_attr* attr){
+  return disastrOS_syscall(DSOS_CALL_MQ_OPEN, mq_name, mq_flag, mq_mode, attr)
+}
+
+int disastrOS_mq_close(mqd_t mq_descriptor){
+  return disastrOS_syscall(DSOS_CALL_MQ_CLOSE, mq_descriptor)
+}
+
+int disastrOS_mq_unlink(const char* mq_name){
+  return disastrOS_syscall(DSOS_CALL_MQ_UNLINK, mq_name)
+}
+
+int disastrOS_mq_send(mqd_t mq_descriptor, char *mq_ptr, size_t mq_len, unsigned int mq_prio){
+  return disastrOS_syscall(DSOS_CALL_MQ_SEND, mq_descriptor,mq_ptr,mq_len, mq_prio)
+}
+
+ssize_t disastrOS_mq_receive(mqd_t mq_descriptor, char* mq_ptr, size_t mq_len, unsigned int *mq_prio){
+  return disastrOS_syscall(DSOS_CALL_MQ_RECEIVE, mq_descriptor, mq_ptr, mq_len, mq_prio)
+}
 
 
 void disastrOS_printStatus(){
@@ -305,6 +349,8 @@ void disastrOS_printStatus(){
   TimerList_print(&timer_list);
   printf("\nResources: ");
   ResourceList_print(&resources_list);
+  printf("\nMessageQueues: ");
+  MessageQueueList_print(&messagequeues_list);
   printf("\nReady: ");
   PCBList_print(&ready_list);
   printf("\nWaiting: ");
