@@ -40,11 +40,11 @@ int disastrOS_closeResource(int fd) ;
 int disastrOS_destroyResource(int resource_id);
 
 //IPC
-mqd_t disastrOS_mq_open(const char* mq_name, int mq_flag, mode_t mq_mode, struct mq_attr* attr);
-int disastrOS_mq_close(mqd_t mq_descriptor);
-int disastrOS_mq_unlink(const char* mq_name);
-int disastrOS_mq_send(mqd_t mq_descriptor, char *mq_ptr, size_t mq_len, unsigned int mq_prio);
-ssize_t disastrOS_mq_receive(mqd_t mq_descriptor, char* mq_ptr, size_t mq_len, unsigned int *mq_prio);
+mqd_t disastrOS_mq_open(int messagequeue_id, int type, int msgsize, int maxmsg, int open_mode);
+int disastrOS_mq_close(mqd_t mq_descrittore);
+int disastrOS_mq_unlink(int messagequeue_id);
+int disastrOS_mq_send(mqd_t mq_descrittore, char *mq_ptr, size_t mq_len, unsigned int mq_prio);
+ssize_t disastrOS_mq_receive(mqd_t mq_descrittore, char* mq_ptr, size_t mq_len, unsigned int *mq_prio);
 
 
 // debug function, prints the state of the internal system

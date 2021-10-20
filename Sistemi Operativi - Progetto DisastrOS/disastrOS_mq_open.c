@@ -4,15 +4,15 @@ mq_open
 - In disastrOS_syscalls.h: 	void internal_mq_open();
 
 - In disastrOS.h:	
-	mqd_t disastrOS_mq_open(const char* mq_name, int mq_flag, mode_t mq_mode, struct mq_attr* attr);
+	mqd_t disastrOS_mq_open(int messagequeue_id, int type, int msgsize, int maxmsg int open_mode);
 
 - In disastrOS.c
 	1:
 		syscall_vector[DSOS_CALL_MQ_OPEN]     = internal_mq_open;
   		syscall_numarg[DSOS_CALL_MQ_OPEN]     = 4;
 	2:
-  mqd_t disastrOS_mq_open(const char* mq_name, int mq_flag, mode_t mq_mode, struct mq_attr* attr){
-  	return disastrOS_syscall(DSOS_CALL_MQ_OPEN, mq_name, mq_flag, mq_mode, attr)
+  mqd_t disastrOS_mq_open(int messagequeue_id, int type, int msgsize, int maxmsg, int open_mode);{
+  	return disastrOS_syscall(DSOS_CALL_MQ_OPEN, messagequeue_id, type, msgsize, maxmsg, open_mode);
   }
 */
 
@@ -25,25 +25,25 @@ mq_open
 #include "linked_list.h"
 
 void internal_mq_open(){
-  const char* mq_name = (char*) running->syscall_args[0];
-  int flag = running->syscall_args[1];
-  mode_t mode = running->syscall_args[2];
-  struct mq_attr attr = running->syscall_args[3];
-
+  int messagequeue_id=running->syscall_args[0];
+  int type=running->syscall_args[1];
+  int msgsize = running->syscall_args[2];
+  int maxmsg = running->syscall_args[3];
+  int open_mode=running->syscall_args[4];
   mqd_t mqd;
 
-  MessageQueue* mq=MessageQueueList_byId(&messagequeues_list, id);
+  MessageQueue* mq=MessageQueueList_byId(&messagequeues_list, messagequeue_id);
   //2 if the resource is opened in CREATE mode, create the resource
   //  and return an error if the resource is already existing
   // otherwise fetch the resource from the system list, and if you don't find it
   // throw an error
   //printf ("CREATING id %d, type: %d, open mode %d\n", id, type, open_mode);
-  if (flag&DSOS_CREATE){
+  if (mode&DSOS_CREATE){
     if (mq) {
       running->syscall_retvalue=DSOS_EMESSAGEQUEUECREATE;
       return;
     }
-    mq=MessageQueue_alloc(id, 0);
+    mq=MessageQueue_alloc(messagequeue_id, type, msgsize, maxmsg);
     List_insert(&messagequeues_list, messagequeues_list.last, (ListItem*) mq);
   }
 
@@ -75,6 +75,6 @@ void internal_mq_open(){
   des->ptr=desptr;
   List_insert(&mq->descrittori_ptrs, res->descrittori_ptrs.last, (ListItem*) desptr);
 
-  // return the FD of the new descriptor to the process
+  // return the MQD of the new descriptor to the process
   running->syscall_retvalue = des->mqd;
 }

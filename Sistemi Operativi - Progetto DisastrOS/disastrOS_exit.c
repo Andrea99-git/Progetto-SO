@@ -4,7 +4,7 @@
 #include "disastrOS.h"
 #include "disastrOS_syscalls.h"
 #include "disastrOS_descriptor.h"
-#include "disastrOS_descrittori.h"
+#include "disastrOS_descrittore.h"
 
 // called upon termination
 // moves the process to a zombie status

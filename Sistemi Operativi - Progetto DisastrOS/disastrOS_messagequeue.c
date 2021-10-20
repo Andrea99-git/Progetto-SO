@@ -23,13 +23,15 @@ void MessageQueue_init(){
     assert(! result);
 }
 
-MessageQueue* MessageQueue_alloc(int id, int type){
+MessageQueue* MessageQueue_alloc(int id, int type, int msgsize, int maxmsg){
   MessageQueue* m=(MessageQueue*) PoolAllocator_getBlock(&_messagequeues_allocator);
   if (!m)
     return 0;
   m->list.prev=m->list.next=0;
   m->id=id;
   m->type=type;
+  m->msgsize=msgsize;
+  m->maxmsg=msgsize;
   List_init(&m->descrittori_ptrs);
   return m;
 }

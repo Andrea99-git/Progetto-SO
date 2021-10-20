@@ -4,14 +4,14 @@ mq_close
 - In disastrOS_syscalls.h: 	void internal_mq_close();
 
 - In disastrOS.h:	
-	int disastrOS_mq_close(mqd_t mq_descriptor);
+	int disastrOS_mq_close(mqd_t mq_descrittore);
 
 - In disastrOS.c
 	1:
 		  syscall_vector[DSOS_CALL_MQ_CLOSE]     = internal_mq_close;
   		  syscall_numarg[DSOS_CALL_MQ_CLOSE]     = 1;
 	2:
-		int disastrOS_mq_close(mqd_t mq_descriptor){
+		int disastrOS_mq_close(mqd_t mq_descrittore){
   			return disastrOS_syscall(DSOS_CALL_MQ_CLOSE, mq_descriptor)
 		}
 */
@@ -35,7 +35,7 @@ void internal_mq_close(){
   //1 retrieve the mqd of the message queue to close
   mqd_t mqd=running->syscall_args[0];
 
-  Descriptor* des=DescriptorList_byFd(&running->descrittori, mqd);
+  Descrittore* des=DescrittoreList_byMqd(&running->descrittori, mqd);
   //2 if the mqd is not in the the process, we return an error
   if (! des){
     running->syscall_retvalue=DSOS_EMESSAGEQUEUECLOSE;
@@ -48,8 +48,8 @@ void internal_mq_close(){
 
   MessageQueue* mq=des->messagequeue;
 
-  // we remove the descriptor pointer from the resource list
-  DescrittorePtr* desptr=(DescrittorePtr*) List_detach(&res->descrittori_ptrs, (ListItem*)(des->ptr));
+  // we remove the descriptor pointer from the messagequeue list
+  DescrittorePtr* desptr=(DescrittorePtr*) List_detach(&mq->descrittori_ptrs, (ListItem*)(des->ptr));
   assert(desptr);
   Descrittore_free(des);
   DescrittorePtr_free(desptr);
