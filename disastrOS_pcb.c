@@ -47,10 +47,12 @@ PCB* PCB_alloc() {
   pcb->return_value=0;
   pcb->status=Invalid;
   pcb->last_fd=0;
+  pcb->last_mqd=0;
   pcb->signals=0;
   pcb->signals_mask=0xFFFFFFFF;
   pcb->status=Invalid;
   List_init(&pcb->descriptors);
+  List_init(&pcb->descrittori);
   pcb->parent=0;
   pcb->timer=0;
   List_init(&pcb->children);

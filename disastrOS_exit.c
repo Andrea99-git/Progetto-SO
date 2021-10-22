@@ -4,6 +4,7 @@
 #include "disastrOS.h"
 #include "disastrOS_syscalls.h"
 #include "disastrOS_descriptor.h"
+#include "disastrOS_descrittore.h"
 
 // called upon termination
 // moves the process to a zombie status
@@ -80,7 +81,17 @@ void internal_exit(){
       DescriptorPtr_free(des->ptr);
       Descriptor_free(des);
     }
-    
+
+    // we release all messagequeues of a process upon termination
+    while(running->descrittori.first) {
+      Descrittore* des=(Descrittore*) running->descrittori.first;
+      List_detach(&running->descrittori, (ListItem*) des);
+      MessageQueue* mq=des->messagequeue;
+      List_detach(&mq->descrittori_ptrs, (ListItem*) des->ptr);
+      DescrittorePtr_free(des->ptr);
+      Descrittore_free(des);
+    }
+
     // the process finally dies
     ListItem* suppressed_item = List_detach(&zombie_list, (ListItem*) running);
     PCB_free((PCB*) suppressed_item);

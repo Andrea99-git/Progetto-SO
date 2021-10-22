@@ -5,9 +5,11 @@ AR=ar
 HEADERS=disastrOS.h\
 	disastrOS_constants.h\
 	disastrOS_descriptor.h\
+     disastrOS_descrittore.h\
 	disastrOS_globals.h\
 	disastrOS_pcb.h\
 	disastrOS_resource.h\
+     disastrOS_messagequeue.h\
 	disastrOS_syscalls.h\
 	disastrOS_timer.h\
 	linked_list.h\
@@ -18,7 +20,9 @@ OBJS=pool_allocator.o\
      disastrOS_timer.o\
      disastrOS_pcb.o\
      disastrOS_resource.o\
+     disastrOS_messagequeue.o\
      disastrOS_descriptor.o\
+     disastrOS_descrittore.o\
      disastrOS.o\
      disastrOS_fork.o\
      disastrOS_wait.o\
@@ -30,7 +34,12 @@ OBJS=pool_allocator.o\
      disastrOS_sleep.o\
      disastrOS_open_resource.o\
      disastrOS_close_resource.o\
-     disastrOS_destroy_resource.o
+     disastrOS_destroy_resource.o\
+     disastrOS_mq_open.o\
+     disastrOS_mq_close.o\
+     disastrOS_mq_unlink.o\
+     disastrOS_mq_send.o\
+     disastrOS_mq_receive.o
 
 LIBS=libdisastrOS.a
 
