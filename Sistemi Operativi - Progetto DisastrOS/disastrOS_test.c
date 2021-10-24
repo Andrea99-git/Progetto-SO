@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <poll.h>
-
 #include "disastrOS.h"
+#include <stdlib.h>
 
 // we need this to handle the sleep state
 void sleeperFunction(void* args){
@@ -18,6 +18,8 @@ void childFunction(void* args){
   printf("I will iterate a bit, before terminating\n");
   int type=0;
   int mode=0;
+  int mqd=disastrOS_mq_open(disastrOS_getpid(),type,15,20,mode);
+  printf("mqd=%d\n", mqd);
   int fd=disastrOS_openResource(disastrOS_getpid(),type,mode);
   printf("fd=%d\n", fd);
   printf("PID: %d, terminating\n", disastrOS_getpid());
@@ -43,11 +45,33 @@ void initFunction(void* args) {
     int mode=DSOS_CREATE;
     printf("mode: %d\n", mode);
     printf("opening resource (and creating if necessary)\n");
+    int mqd=disastrOS_mq_open(i,type,15, 20,mode);
+    printf("mqd=%d\n", mqd);
     int fd=disastrOS_openResource(i,type,mode);
     printf("fd=%d\n", fd);
     disastrOS_spawn(childFunction, 0);
     alive_children++;
+    char* ptr = "ajo";
+    mqd = disastrOS_mq_send(i,ptr,6);
+    char buf[20];
+    buf = "op";
+    mqd = disastrOS_mq_receive(i,(char*)buf,6);
+    if (mqd == 0){
+      printf("Stringa ricevuta:************ %s\n", buf);
+    }
   }
+
+  for (int i=0; i<10; ++i) {
+    int fd = disastrOS_closeResource(i);
+    if(fd == 0){
+      printf("Chiudi risorsa\n");
+    }
+    int mqd=disastrOS_mq_close(i);
+    if(mqd == 0){
+      printf("Chiudi message queue\n");
+    }
+  }
+
 
   disastrOS_printStatus();
   int retval;
@@ -62,6 +86,7 @@ void initFunction(void* args) {
   disastrOS_shutdown();
 }
 
+
 int main(int argc, char** argv){
   char* logfilename=0;
   if (argc>1) {
@@ -72,6 +97,7 @@ int main(int argc, char** argv){
   // the others are in the ready queue
   printf("the function pointer is: %p", childFunction);
   // spawn an init process
+
   printf("start\n");
   disastrOS_start(initFunction, 0, logfilename);
   return 0;

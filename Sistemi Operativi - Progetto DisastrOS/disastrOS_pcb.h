@@ -31,7 +31,7 @@ typedef struct PCB{
   ListHead descriptors;
 
   //descrittori
-  mqd_t last_mqd;
+  int last_mqd;
   ListHead descrittori;
   
   //we are really rude :) the stack is INSIDE the pcb

@@ -88,8 +88,8 @@ void internal_exit(){
       List_detach(&running->descrittori, (ListItem*) des);
       MessageQueue* mq=des->messagequeue;
       List_detach(&mq->descrittori_ptrs, (ListItem*) des->ptr);
-      DescriptorPtr_free(des->ptr);
-      Descriptor_free(des);
+      DescrittorePtr_free(des->ptr);
+      Descrittore_free(des);
     }
 
     // the process finally dies

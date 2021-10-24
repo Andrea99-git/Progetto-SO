@@ -13,7 +13,7 @@ typedef struct Descrittore{
   ListItem list;
   PCB* pcb;
   MessageQueue* messagequeue;
-  mqd_t mqd;
+  int mqd;
   struct DescrittorePtr* ptr; 
 } Descrittore;
 
@@ -23,9 +23,9 @@ typedef struct DescrittorePtr{
 } DescrittorePtr;
 
 void Descrittore_init();
-Descrittore* Descrittore_alloc(mqd_t mqd, MessageQueue* mq, PCB* pcb);
+Descrittore* Descrittore_alloc(int mqd, MessageQueue* mq, PCB* pcb);
 int Descrittore_free(Descrittore* d);
-Descrittore*  DescrittoreList_byMqd(ListHead* l, mqd_t mqd);
+Descrittore*  DescrittoreList_byMqd(ListHead* l, int mqd);
 void DescrittoreList_print(ListHead* l);
 
 DescrittorePtr* DescrittorePtr_alloc(Descrittore* descrittore);

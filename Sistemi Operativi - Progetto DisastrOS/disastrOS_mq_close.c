@@ -4,14 +4,14 @@ mq_close
 - In disastrOS_syscalls.h: 	void internal_mq_close();
 
 - In disastrOS.h:	
-	int disastrOS_mq_close(mqd_t mq_descrittore);
+	int disastrOS_mq_close(int mq_descrittore);
 
 - In disastrOS.c
 	1:
 		  syscall_vector[DSOS_CALL_MQ_CLOSE]     = internal_mq_close;
   		  syscall_numarg[DSOS_CALL_MQ_CLOSE]     = 1;
 	2:
-		int disastrOS_mq_close(mqd_t mq_descrittore){
+		int disastrOS_mq_close(int mq_descrittore){
   			return disastrOS_syscall(DSOS_CALL_MQ_CLOSE, mq_descriptor)
 		}
 */
@@ -24,8 +24,6 @@ mq_close
 #include <sys/stat.h>
 #include "disastrOS.h"
 #include "disastrOS_syscalls.h"
-#include "disastrOS_resource.h"
-#include "disastrOS_descriptor.h"
 #include "disastrOS_messagequeue.h"
 #include "disastrOS_descrittore.h"
 #include "disastrOS_pcb.h"
@@ -33,7 +31,7 @@ mq_close
 
 void internal_mq_close(){
   //1 retrieve the mqd of the message queue to close
-  mqd_t mqd=running->syscall_args[0];
+  int mqd=running->syscall_args[0];
 
   Descrittore* des=DescrittoreList_byMqd(&running->descrittori, mqd);
   //2 if the mqd is not in the the process, we return an error

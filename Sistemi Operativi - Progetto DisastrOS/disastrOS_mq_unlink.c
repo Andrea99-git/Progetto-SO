@@ -4,7 +4,7 @@ mq_unlink
 - In disastrOS_syscalls.h: 	void internal_mq_unlink();
 
 - In disastrOS.h:	
-	int disastrOS_mq_unlink(const char* mq_name);
+	int disastrOS_mq_unlink(int id);
 
 - In disastrOS.c
 	1:
@@ -15,6 +15,17 @@ mq_unlink
   			return disastrOS_syscall(DSOS_CALL_MQ_UNLINK, messagequeue_id)
 		}
 */
+
+#include <assert.h>
+#include <unistd.h>
+#include <stdio.h>
+#include <mqueue.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include "disastrOS.h"
+#include "disastrOS_syscalls.h"
+#include "disastrOS_messagequeue.h"
+#include "disastrOS_descrittore.h"
 
 void internal_mq_unlink(){
   int id=running->syscall_args[0];
@@ -27,7 +38,7 @@ void internal_mq_unlink(){
   }
 
   // ensure the messagequeue is not used by any process
-  if(res->descrittori_ptrs.size){
+  if(mq->descrittori_ptrs.size){
     running->syscall_retvalue=DSOS_EMESSAGEQUEUEINUSE;
     return;
   }

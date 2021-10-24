@@ -1,6 +1,9 @@
 #include <assert.h>
 #include <stdio.h>
-#include "disastrOS_descriptor.h"
+#include <mqueue.h>
+#include <sys/stat.h>
+#include "linked_list.h"
+#include "disastrOS_descrittore.h"
 #include "pool_allocator.h"
 #include "disastrOS_constants.h"
 
@@ -35,7 +38,7 @@ void Descrittore_init(){
   assert(! result);
 }
 
-Descrittore* Descrittore_alloc(mqd_t mqd, MessageQueue* mq, PCB* pcb) {
+Descrittore* Descrittore_alloc(int mqd, MessageQueue* mq, PCB* pcb) {
   Descrittore* d=(Descrittore*)PoolAllocator_getBlock(&_descrittore_allocator);
   if (!d)
     return 0;
@@ -50,7 +53,7 @@ int Descrittore_free(Descrittore* d) {
   return PoolAllocator_releaseBlock(&_descrittore_allocator, d);
 }
 
-Descrittore*  DescrittoreList_byMqd(ListHead* l, mqd_t mqd){
+Descrittore*  DescrittoreList_byMqd(ListHead* l, int mqd){
   ListItem* aux=l->first;
   while(aux){
     Descrittore* d=(Descrittore*)aux;
@@ -79,7 +82,8 @@ void DescrittoreList_print(ListHead* l){
   printf("[");
   while(aux){
     Descrittore* d=(Descrittore*)aux;
-    printf("(rid:%d)",
+    printf("(des: %d, rid:%d)",
+     d->mqd,
 	   d->messagequeue->id);
     if(aux->next)
       printf(", ");
@@ -94,8 +98,9 @@ void DescrittorePtrList_print(ListHead* l){
   printf("[");
   while(aux){
     DescrittorePtr* d=(DescrittorePtr*)aux;
-    printf("(pid: %d, rid:%d)",
+    printf("(pid: %d,mqd: %d, rid:%d)",
 	   d->descrittore->pcb->pid,
+     d->descrittore->mqd,
 	   d->descrittore->messagequeue->id);
     if(aux->next)
       printf(", ");

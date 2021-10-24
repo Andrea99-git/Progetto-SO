@@ -9,18 +9,26 @@
 //il buffer penso vada allocato come buffer[maxmsg][msgsize] e per scrivere al suo interno dovro' usare
 //strcpy(buffer[0], "blah");
 
+typedef struct{
+  ListItem list;
+  int id;
+  char* message;
+} Message;
+
 typedef struct {
   ListItem list;
   int id;
   int type;
-  int msgsize; 	//max size of a msg
-  int maxmsg;	// max number of messages in a mq
-  ListHead descrittore_ptrs;
+  int msg_num;  //indicates the number of messages in a MessageQueue
+  int msg_size; 	//max size of a msg
+  int max_msg;	// max number of messages in a mq
+  ListHead descrittori_ptrs;
+  ListHead messages;
 } MessageQueue;
 
 void MessageQueue_init();
 
-MessageQueue* MessageQueue_alloc(int id, int type, int msgsize; int maxmsg);
+MessageQueue* MessageQueue_alloc(int id, int type, int msg_num, int msg_size, int max_msg);
 int MessageQueue_free(MessageQueue* messagequeue);
 
 typedef ListHead MessageQueueList;
@@ -28,3 +36,10 @@ typedef ListHead MessageQueueList;
 MessageQueue* MessageQueueList_byId(MessageQueueList* l, int id);
 
 void MessageQueueList_print(ListHead* l);
+
+//Messages
+Message* Message_alloc(int id);
+int Message_free(Message* msg);
+typedef ListHead MessageList;
+Message* Message_byId(ListHead* messages, int id);
+void MessageList_print(ListHead* l);

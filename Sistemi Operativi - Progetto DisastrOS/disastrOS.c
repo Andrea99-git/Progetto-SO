@@ -15,6 +15,7 @@
 #include "disastrOS_descriptor.h"
 #include "disastrOS_messagequeue.h"
 #include "disastrOS_descrittore.h"
+#include "disastrOS_messagequeue.h"
 
 
 FILE* log_file=NULL;
@@ -191,7 +192,7 @@ void disastrOS_start(void (*f)(void*), void* f_args, char* logfile){
   syscall_numarg[DSOS_CALL_DESTROY_RESOURCE]     = 1;
 
   syscall_vector[DSOS_CALL_MQ_OPEN]     = internal_mq_open;
-  syscall_numarg[DSOS_CALL_MQ_OPEN]     = 4;
+  syscall_numarg[DSOS_CALL_MQ_OPEN]     = 5;
 
   syscall_vector[DSOS_CALL_MQ_CLOSE]     = internal_mq_close;
   syscall_numarg[DSOS_CALL_MQ_CLOSE]     = 1;
@@ -200,10 +201,10 @@ void disastrOS_start(void (*f)(void*), void* f_args, char* logfile){
   syscall_numarg[DSOS_CALL_MQ_UNLINK]     = 1;
 
   syscall_vector[DSOS_CALL_MQ_SEND]     = internal_mq_send;
-  syscall_numarg[DSOS_CALL_MQ_SEND]     = 4;
+  syscall_numarg[DSOS_CALL_MQ_SEND]     = 3;
 
   syscall_vector[DSOS_CALL_MQ_RECEIVE]     = internal_mq_receive;
-  syscall_numarg[DSOS_CALL_MQ_RECEIVE]     = 4;
+  syscall_numarg[DSOS_CALL_MQ_RECEIVE]     = 3;
 
   syscall_vector[DSOS_CALL_SHUTDOWN]      = internal_shutdown;
   syscall_numarg[DSOS_CALL_SHUTDOWN]      = 0;
@@ -318,24 +319,24 @@ int disastrOS_destroyResource(int resource_id) {
   return disastrOS_syscall(DSOS_CALL_DESTROY_RESOURCE, resource_id);
 }
 
-mqd_t disastrOS_mq_open(int messagequeue_id, int type, int msgsize, int maxmsg, int open_mode){
-  return disastrOS_syscall(DSOS_CALL_MQ_OPEN, messagequeue_id, type, msgsize, maxmsg, open_mode)
+int disastrOS_mq_open(int messagequeue_id, int type, int msg_size, int max_msg, int open_mode){
+  return disastrOS_syscall(DSOS_CALL_MQ_OPEN, messagequeue_id, type, msg_size, max_msg, open_mode);
 }
 
-int disastrOS_mq_close(mqd_t mq_descrittore){
-  return disastrOS_syscall(DSOS_CALL_MQ_CLOSE, mq_descrittore)
+int disastrOS_mq_close(int mq_descrittore){
+  return disastrOS_syscall(DSOS_CALL_MQ_CLOSE, mq_descrittore);
 }
 
 int disastrOS_mq_unlink(int messagequeue_id){
-  return disastrOS_syscall(DSOS_CALL_MQ_UNLINK, messagequeue_id)
+  return disastrOS_syscall(DSOS_CALL_MQ_UNLINK, messagequeue_id);
 }
 
-int disastrOS_mq_send(mqd_t mq_descrttore, char *mq_ptr, size_t mq_len, unsigned int mq_prio){
-  return disastrOS_syscall(DSOS_CALL_MQ_SEND, mq_descrittore,mq_ptr,mq_len, mq_prio)
+int disastrOS_mq_send(int mq_descrittore, char *msg_ptr, int msg_len){
+  return disastrOS_syscall(DSOS_CALL_MQ_SEND, mq_descrittore,msg_ptr,msg_len);
 }
 
-ssize_t disastrOS_mq_receive(mqd_t mq_descrittore, char* mq_ptr, size_t mq_len, unsigned int *mq_prio){
-  return disastrOS_syscall(DSOS_CALL_MQ_RECEIVE, mq_descrittore, mq_ptr, mq_len, mq_prio)
+int disastrOS_mq_receive(int mq_descrittore, char* msg_ptr, int msg_len){
+  return disastrOS_syscall(DSOS_CALL_MQ_RECEIVE, mq_descrittore, msg_ptr, msg_len);
 }
 
 
