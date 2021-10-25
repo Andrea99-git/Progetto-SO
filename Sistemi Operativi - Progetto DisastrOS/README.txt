@@ -1,35 +1,9 @@
-THIS IS INCOMPLETE
+In the project i implemented an IPC system based on message queues in disastrOS.
 
-In this folder
+In order to allow the communication between processes i added in disastrOS two different structures (Messagequeues and Descrittori) and some syscall:
 
-- resource management system
-  we implemented the infrastructure to handle descriptors and files
-- a "resource is uniquely identified in the system
-  it can be created, opened or closed by one or more files
-  it keeps track of who is usingit
-- a process keeps track of the open resources through descriptors
+- mq_open, that open a Messagequeues and create it is specified
+- mq_close and mq_unlink, that remove the given messagequeue
+- mq_send and receive, that allow sending and receiving messages through the system
 
-1. the resource structures and allocation
-   files: disastrOS_resource.*
-
-2. the descriptor structures and allocation
-   files: disastrOS_resource.*
-
-3. the PCB is modified by adding a list of open descriptors
-   files: pcb.h, pcb.c
-
-4. the resources appear in the global variables
-   files: disastrOS.c
-
-5. new system calls to manage resources
-   files:
-   - disastrOS_syscalls.h
-   - disastrOS_resource_open.c
-   - disastrOS_resource_close.c
-   - disastrOS_resource_destroy.c
-
-6. new syscalls are added to the infrastructure
-   files:
-   - disastrOS.c
-     functions:
-     -disastrOS_start
+In order to test them implemented a call of each function in disastrOS_test.c

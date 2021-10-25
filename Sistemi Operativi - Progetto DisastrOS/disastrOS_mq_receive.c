@@ -59,18 +59,49 @@ void internal_mq_receive(){
 		return;
 	}
 
+
+	while (mq -> msg_num == 0){
+		if (running->timer) {
+			printf("process has already a timer!!!\n");
+			running->syscall_retvalue=DSOS_ESLEEP;
+			return;
+		}
+		  int cycles_to_sleep= 30;
+		  int wake_time=disastrOS_time+cycles_to_sleep;
+		  printf("AOOOOOOOOOOOOOO sono nel ciclo\n");
+  
+		  TimerItem* new_timer=TimerList_add(&timer_list, wake_time, running);
+		  if (! new_timer) {
+			printf("no new timer!!!\n");
+			running->syscall_retvalue=DSOS_ESLEEP;
+			return;
+		  } 
+		  running->status=Waiting;
+		  List_insert(&waiting_list, waiting_list.last, (ListItem*) running);
+		  if (ready_list.first){
+			running=(PCB*) List_detach(&ready_list, ready_list.first);
+			printf("Dormo\n");
+		  }
+		  else {
+			running=0;
+			printf ("they are all sleeping\n");
+			disastrOS_printStatus();
+		  }
+	}
+
+
 	Message* msg = (Message*) List_detach((ListHead*)&mq -> messages, (ListItem*)(mq-> messages.first));
 	assert(msg);
 
-	msg_ptr = (char*) msg -> message;
-	running -> syscall_args[1] = msg_ptr;
+	/*msg_ptr = (char*) msg -> message;
+	running -> syscall_args[1] = msg_ptr;*/
 
-	printf("AOOOOOOOOOOOOOO %ld\t, %s\t, %ld\n",running->syscall_args[0], running->syscall_args[1], running->syscall_args[2]);
+	strcpy(running -> syscall_args[1], msg->message);
 
-	//printf("Ricevuto messaggio: %s == %s\n",msg->message,(char*)(running -> syscall_args[1]));
-	printf("Numero di messaggi in coda = %d\n", mq->msg_num);
+	printf("Ricevuto messaggio: %s == %s\n",msg->message,(char*)(running -> syscall_args[1]));
 	Message_free(msg);
 	mq -> msg_num--;
+	printf("Numero di messaggi in coda = %d\n", mq->msg_num);
 	running -> syscall_retvalue = 0;
 	return;
 

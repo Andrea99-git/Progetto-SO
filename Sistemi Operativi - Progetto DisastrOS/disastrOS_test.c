@@ -40,28 +40,30 @@ void initFunction(void* args) {
 
   printf("I feel like to spawn 10 nice threads\n");
   int alive_children=0;
-  for (int i=0; i<10; ++i) {
-    int type=0;
+
+  printf("I prossimi 3 thread hanno msg_size della mq < della msg_length\n");
+
+  for (int i=0; i<3; ++i) {
+   int type=0;
     int mode=DSOS_CREATE;
     printf("mode: %d\n", mode);
     printf("opening resource (and creating if necessary)\n");
-    int mqd=disastrOS_mq_open(i,type,15, 20,mode);
+    int mqd=disastrOS_mq_open(i,type,3, 5,mode);
     printf("mqd=%d\n", mqd);
     int fd=disastrOS_openResource(i,type,mode);
     printf("fd=%d\n", fd);
     disastrOS_spawn(childFunction, 0);
     alive_children++;
-    char* ptr = "ajo";
+    char* ptr = "prova";
     mqd = disastrOS_mq_send(i,ptr,6);
     char buf[20];
-    buf = "op";
     mqd = disastrOS_mq_receive(i,(char*)buf,6);
     if (mqd == 0){
-      printf("Stringa ricevuta:************ %s\n", buf);
+      printf("Stringa ricevuta: %s\n", buf);
     }
   }
 
-  for (int i=0; i<10; ++i) {
+  for (int i=0; i<3; ++i) {
     int fd = disastrOS_closeResource(i);
     if(fd == 0){
       printf("Chiudi risorsa\n");
@@ -71,6 +73,65 @@ void initFunction(void* args) {
       printf("Chiudi message queue\n");
     }
   }
+
+
+  for (int i=0; i<20; ++i) {
+    int type=0;
+    int mode=DSOS_CREATE;
+    printf("mode: %d\n", mode);
+    printf("opening resource (and creating if necessary)\n");
+    int mqd=disastrOS_mq_open(i,type,20, 3,mode);
+    printf("mqd=%d\n", mqd);
+    int fd=disastrOS_openResource(i,type,mode);
+    printf("fd=%d\n", fd);
+    disastrOS_spawn(childFunction, 0);
+    alive_children++;
+    char* ptr = "prova";
+    mqd = disastrOS_mq_send(i,ptr,6);
+    char buf[20];
+    if(i > 8){
+      mqd = disastrOS_mq_receive(i,(char*)buf,6);
+      if (mqd == 0){
+        printf("Stringa ricevuta: %s\n", buf);
+      }
+    }
+  }
+
+  for (int i=0; i<20; ++i) {
+    int fd = disastrOS_closeResource(i);
+    if(fd == 0){
+      printf("Chiudi risorsa\n");
+    }
+    int mqd=disastrOS_mq_close(i);
+    if(mqd == 0){
+      printf("Chiudi message queue\n");
+    }
+  }
+/*
+  //Test per la mq bloccante
+  int mqd=disastrOS_mq_open(30,0,20, 5,DSOS_CREATE);
+  printf("mqd=%d\n", mqd);
+  alive_children++;
+
+  for (int i=0; i<20; ++i) {
+    char* ptr = "prova";
+    mqd = disastrOS_mq_send(30,ptr,6);
+  }
+  for(int i=0;i<20;++i){
+    char buf[20];
+    mqd = disastrOS_mq_receive(30,(char*)buf,6);
+    if (mqd == 0){
+      printf("Stringa ricevuta: %s\n", buf);
+    }
+  }
+
+    mqd=disastrOS_mq_close(30);
+    if(mqd == 0){
+      printf("Chiudi message queue\n");
+    }*/
+  
+
+
 
 
   disastrOS_printStatus();
