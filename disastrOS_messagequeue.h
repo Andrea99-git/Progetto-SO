@@ -3,6 +3,7 @@
 #include <sys/stat.h>
 #include "linked_list.h"
 #include "disastrOS_pcb.h"
+#include "disastrOS_constants.h"
 
 //devo introdurre un valore int nummsg (che indica il numero di messaggi totale) ed il buffer (che contiene i messaggi)
 
@@ -12,7 +13,7 @@
 typedef struct{
   ListItem list;
   int id;
-  char* message;
+  char message[MAX_MESSAGE_LENGHT];
 } Message;
 
 typedef struct {
@@ -38,8 +39,8 @@ MessageQueue* MessageQueueList_byId(MessageQueueList* l, int id);
 void MessageQueueList_print(ListHead* l);
 
 //Messages
-
 Message* Message_alloc(int id);
 int Message_free(Message* msg);
+typedef ListHead MessageList;
 Message* Message_byId(ListHead* messages, int id);
 void MessageList_print(ListHead* l);

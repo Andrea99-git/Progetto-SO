@@ -22,7 +22,6 @@ static char _pcb_ptr_buffer[PCBPTR_BUFFER_SIZE];
 static PoolAllocator _pcb_ptr_allocator;
 
 
-
 void PCB_init(){
     int result=PoolAllocator_init(& _pcb_allocator,
 				  PCB_SIZE,

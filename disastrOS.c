@@ -15,6 +15,7 @@
 #include "disastrOS_descriptor.h"
 #include "disastrOS_messagequeue.h"
 #include "disastrOS_descrittore.h"
+#include "disastrOS_messagequeue.h"
 
 
 FILE* log_file=NULL;

@@ -98,8 +98,9 @@ void DescrittorePtrList_print(ListHead* l){
   printf("[");
   while(aux){
     DescrittorePtr* d=(DescrittorePtr*)aux;
-    printf("(pid: %d, rid:%d)",
+    printf("(pid: %d,mqd: %d, rid:%d)",
 	   d->descrittore->pcb->pid,
+     d->descrittore->mqd,
 	   d->descrittore->messagequeue->id);
     if(aux->next)
       printf(", ");

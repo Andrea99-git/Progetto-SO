@@ -18,7 +18,7 @@
 static char _messagequeues_buffer[MESSAGEQUEUE_BUFFER_SIZE];
 static PoolAllocator _messagequeues_allocator;
 
-static char message_buffer[MESSAGE_BUFFER_SIZE];
+static char _message_buffer[MESSAGE_BUFFER_SIZE];
 static PoolAllocator _message_allocator;
 
 void MessageQueue_init(){
@@ -28,6 +28,14 @@ void MessageQueue_init(){
 				  _messagequeues_buffer,
 				  MESSAGEQUEUE_BUFFER_SIZE);
     assert(! result);
+
+   result=PoolAllocator_init(& _message_allocator,
+        MESSAGE_SIZE,
+        MAX_NUM_MESSAGES,
+        _message_buffer,
+        MESSAGE_BUFFER_SIZE);
+   assert(! result);
+
 }
 
 MessageQueue* MessageQueue_alloc(int id, int type, int msg_num, int msg_size, int max_msg){
@@ -37,7 +45,7 @@ MessageQueue* MessageQueue_alloc(int id, int type, int msg_num, int msg_size, in
   m->list.prev=m->list.next=0;
   m->id=id;
   m->type=type;
-  m->msg_num = msg_num;
+  m->msg_num = 0;
   m->msg_size=msg_size;
   m->max_msg=max_msg;
   List_init(&m->descrittori_ptrs);
@@ -103,10 +111,11 @@ Message* Message_byId(ListHead* messages, int id){
   ListItem* aux=messages->first;
   while (aux) {
     Message* message=(Message*) aux;
-    if (message->id==id)
+    if (message->id==id){
       return message;
       aux=aux->next;
     }
+  }
   return 0;
 }
 
