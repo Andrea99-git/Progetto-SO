@@ -42,7 +42,15 @@ void internal_mq_unlink(){
     running->syscall_retvalue=DSOS_EMESSAGEQUEUEINUSE;
     return;
   }
-
+/*
+  // free each message that has not been received
+  for (int i = 0; i < mq -> msg_num; i++){
+    Message* msg = (Message*) List_detach((ListHead*)&mq -> messages, (ListItem*)(mq-> messages.first));
+    assert(msg);
+    Message_free(msg);
+    mq -> msg_num--;
+  }
+*/
   mq=(MessageQueue*) List_detach(&messagequeues_list, (ListItem*) mq);
   assert(mq);
   MessageQueue_free(mq);

@@ -63,22 +63,20 @@ void internal_mq_send(){
 	//3 if the message_queue if already full we wait and re-try. Else we write on the queue.
 	
 	if(mq -> max_msg == 0){
-		printf("The max_msg number should be != 0\n");
+		printf("The max_msg number should be != 0. Cannot send a message\n");
 		running -> syscall_retvalue = DSOS_EMESSAGESIZE;
 		return;
 	}
 
-	printf("provo: msg->num = %d\n", mq->msg_num);
-
-	while (mq -> msg_num == mq -> max_msg){
+	if (mq -> msg_num == mq -> max_msg){
 		if (running->timer) {
 			printf("process has already a timer!!!\n");
 			running->syscall_retvalue=DSOS_ESLEEP;
 			return;
 		}
-		  int cycles_to_sleep= 30;
+		  int cycles_to_sleep= 25;
 		  int wake_time=disastrOS_time+cycles_to_sleep;
-		  printf("AOOOOOOOOOOOOOO sono nel ciclo\n");
+		  printf("The msg_num (%d) is = max_msg (%d). I'm gonna go sleep and wait that another process receives a message", mq->msg_num, mq->max_msg);
   
 		  TimerItem* new_timer=TimerList_add(&timer_list, wake_time, running);
 		  if (! new_timer) {
@@ -90,21 +88,20 @@ void internal_mq_send(){
 		  List_insert(&waiting_list, waiting_list.last, (ListItem*) running);
 		  if (ready_list.first){
 			running=(PCB*) List_detach(&ready_list, ready_list.first);
-			printf("Dormo\n");
 		  }
 		  else {
 			running=0;
 			printf ("they are all sleeping\n");
 			disastrOS_printStatus();
 		  }
-	}
 
-	printf("passato!!!\n");
+		running->syscall_retvalue=DSOS_EMESSAGEQUEUEFULL;
+		return;
+	}
 	
 	Message* msg = Message_alloc(mq->msg_num);
 	List_insert(&mq->messages, mq->messages.last, (ListItem*) msg);
 
-	//msg->message = msg_ptr;
 	strcpy(msg->message,msg_ptr);
 
 	printf("Aggiunto messaggio: %s == %s\n",msg_ptr,msg->message);

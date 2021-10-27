@@ -53,22 +53,23 @@ void internal_mq_receive(){
 	}
 	
 	//3 if the number of messages in the mq is 0 we wait and re-try. Else we write on the queue.
-	
-	if (mq -> msg_num == 0){
-		running -> syscall_retvalue = DSOS_EMESSAGEQUEUEEMPTY;
+
+	if(mq -> max_msg == 0){
+		printf("The max_msg number should be != 0. Cannot receive a message\n");
+		running -> syscall_retvalue = DSOS_EMESSAGESIZE;
 		return;
 	}
 
 
-	while (mq -> msg_num == 0){
+	if (mq -> msg_num == 0){
 		if (running->timer) {
 			printf("process has already a timer!!!\n");
 			running->syscall_retvalue=DSOS_ESLEEP;
 			return;
 		}
-		  int cycles_to_sleep= 30;
+		  int cycles_to_sleep= 25;
 		  int wake_time=disastrOS_time+cycles_to_sleep;
-		  printf("AOOOOOOOOOOOOOO sono nel ciclo\n");
+		  printf("The msg_num is 0. I'm gonna go sleep and wait that another process sends a message\n");
   
 		  TimerItem* new_timer=TimerList_add(&timer_list, wake_time, running);
 		  if (! new_timer) {
@@ -80,28 +81,25 @@ void internal_mq_receive(){
 		  List_insert(&waiting_list, waiting_list.last, (ListItem*) running);
 		  if (ready_list.first){
 			running=(PCB*) List_detach(&ready_list, ready_list.first);
-			printf("Dormo\n");
 		  }
 		  else {
 			running=0;
 			printf ("they are all sleeping\n");
 			disastrOS_printStatus();
 		  }
+		running->syscall_retvalue=DSOS_EMESSAGEQUEUEEMPTY;
+		return;
 	}
 
 
 	Message* msg = (Message*) List_detach((ListHead*)&mq -> messages, (ListItem*)(mq-> messages.first));
 	assert(msg);
 
-	/*msg_ptr = (char*) msg -> message;
-	running -> syscall_args[1] = msg_ptr;*/
-
 	strcpy(running -> syscall_args[1], msg->message);
 
 	printf("Ricevuto messaggio: %s == %s\n",msg->message,(char*)(running -> syscall_args[1]));
 	Message_free(msg);
 	mq -> msg_num--;
-	printf("Numero di messaggi in coda = %d\n", mq->msg_num);
 	running -> syscall_retvalue = 0;
 	return;
 

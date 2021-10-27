@@ -30,6 +30,7 @@ typedef struct {
 void MessageQueue_init();
 
 MessageQueue* MessageQueue_alloc(int id, int type, int msg_num, int msg_size, int max_msg);
+
 int MessageQueue_free(MessageQueue* messagequeue);
 
 typedef ListHead MessageQueueList;

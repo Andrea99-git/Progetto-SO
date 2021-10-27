@@ -56,8 +56,14 @@ MessageQueue* MessageQueue_alloc(int id, int type, int msg_num, int msg_size, in
 int MessageQueue_free(MessageQueue* m) {
   assert(m->descrittori_ptrs.first==0);
   assert(m->descrittori_ptrs.last==0);
-  assert(m->messages.first==0);
-  assert(m->messages.last==0);
+
+  //free mq messages
+
+  Message* msg = (Message*) m->messages.first;
+  for (int i = 0; i < m->msg_num; i++){
+      msg = List_detach((ListHead*)&m -> messages, (ListItem*)(m-> messages.first));
+      PoolAllocator_releaseBlock(&_message_allocator, msg);      
+  }
   return PoolAllocator_releaseBlock(&_messagequeues_allocator, m);
 }
 
@@ -75,6 +81,20 @@ MessageQueue* MessageQueueList_byId(MessageQueueList* l, int id) {
 void MessageQueue_print(MessageQueue* m) {
   printf("id: %d, type:%d, pids:", m->id, m->type);
   DescrittorePtrList_print(&m->descrittori_ptrs);
+
+  //Messages in this specific mq
+
+  printf("\n\t");
+  printf("Messages in this mq:\n");
+  printf("\t");
+
+  Message* msg = (Message*) m->messages.first;
+  printf("[");
+  while (msg){
+      printf("% s /", msg->message);
+      msg = (Message*) msg->list.next;
+  }
+  printf("]\n");
 }
 
 void MessageQueueList_print(ListHead* l){

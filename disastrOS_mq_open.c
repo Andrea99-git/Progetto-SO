@@ -71,9 +71,6 @@ void internal_mq_open(){
      return;
   }
 
-  /* !!! Potrebbe darmi problemi il fatto che stia facendo ++ di un valore non int*/
-
-
   printf("Aggiunta la mq avente id %d\n", messagequeue_id);
   running->last_mqd++; // we increment the mqd value for the next call
   DescrittorePtr* desptr=DescrittorePtr_alloc(des);

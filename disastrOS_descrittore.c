@@ -82,7 +82,7 @@ void DescrittoreList_print(ListHead* l){
   printf("[");
   while(aux){
     Descrittore* d=(Descrittore*)aux;
-    printf("(des: %d, rid:%d)",
+    printf("(des: %d, rid:%d\n)",
      d->mqd,
 	   d->messagequeue->id);
     if(aux->next)

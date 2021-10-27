@@ -3,17 +3,17 @@ CCOPTS=--std=gnu99 -Wall
 AR=ar
 
 HEADERS=disastrOS.h\
-	disastrOS_constants.h\
-	disastrOS_descriptor.h\
+     disastrOS_constants.h\
+     disastrOS_descriptor.h\
      disastrOS_descrittore.h\
-	disastrOS_globals.h\
-	disastrOS_pcb.h\
-	disastrOS_resource.h\
+     disastrOS_globals.h\
+     disastrOS_pcb.h\
+     disastrOS_resource.h\
      disastrOS_messagequeue.h\
-	disastrOS_syscalls.h\
-	disastrOS_timer.h\
-	linked_list.h\
-	pool_allocator.h\
+     disastrOS_syscalls.h\
+     disastrOS_timer.h\
+     linked_list.h\
+     pool_allocator.h\
 
 OBJS=pool_allocator.o\
      linked_list.o\
@@ -40,10 +40,9 @@ OBJS=pool_allocator.o\
      disastrOS_mq_unlink.o\
      disastrOS_mq_send.o\
      disastrOS_mq_receive.o
-
 LIBS=libdisastrOS.a
 
-BINS=disastrOS_test
+BINS=disastrOS_test disastrOS_test_mq_bloccanti
 
 #disastros_test
 
@@ -60,6 +59,9 @@ libdisastrOS.a: $(OBJS) $(HEADERS)
 	$(RM) $(OBJS)
 
 disastrOS_test:		disastrOS_test.c $(LIBS)
+	$(CC) $(CCOPTS) -o $@ $^
+
+disastrOS_test_mq_bloccanti:		disastrOS_test_mq_bloccanti.c $(LIBS)
 	$(CC) $(CCOPTS) -o $@ $^
 
 clean:
