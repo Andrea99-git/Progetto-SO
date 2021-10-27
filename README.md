@@ -11,7 +11,7 @@ In order to allow the communication between processes i added in disastrOS two d
 
 In order to test them, i implemented a call of each function in disastrOS_test.c. In order to test the "blocking part" of the syscalls i also implementented a specific test in ./disastrOS_test_mq_bloccanti
 
-##How to run
-$ make
-$ ./disastrOS_test
-$ ./disastrOS_test_mq_bloccanti
+## How to run:
+- $ make
+- $ ./disastrOS_test
+- $ ./disastrOS_test_mq_bloccanti
